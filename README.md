@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 📚 Documentação do Jogo (Game Docs)
 
-## Getting Started
+Como "Brasims" é um simulador incremental com forte base matemática e crítica social, mantemos a documentação de Game Design e Balanceamento estritamente atualizada ao lado do código.
 
-First, run the development server:
+### 1. Game Design Document (GDD)
+O arquivo [`GDD.md`](docs/GDD.md) contém a visão geral do jogo "Brasims", detalhando o simulador de ascensão e privilégio brasileiro. Ele é o coração do projeto e a fonte da verdade absoluta para:
+* **Pilares de Design:** A luta constante entre ganho passivo e o custo de vida.
+* **Core Loop:** O ciclo de sobrevivência envolvendo bicos manuais, educação e gestão de cargos CLT.
+* **Privilégio (Prestige):** O sistema onde o jogador reseta o progresso para nascer em uma nova família com vantagens herdadas.
+* **O Imprevisto:** O mapeamento de eventos aleatórios e tragédias cotidianas.
+
+*Nota: Este é um documento vivo (Living Document). À medida que avançamos no roadmap (V1 até V5), novas trilhas de carreira, cursos e mecânicas de eventos serão adicionados aqui.*
+
+### 2. Design Notes & Rebalanceamento (Changelogs Lógicos)
+A matemática dita a emoção de um jogo Idle. Para evitar que o código vire uma bagunça de "números mágicos", registramos todas as decisões de economia e balanceamento (como o arquivo [`rebalance-v1.md`](docs/rebalanceamento-v1.md)). 
+* **O que você encontra aqui:** Histórico de correções de "Poverty Traps" (Armadilhas da Pobreza), ajustes na taxa de regeneração de energia, valores de custo de entrada (Upfront Costs) para empregos e alterações na fórmula do motor de Tick.
+* **Por que mantemos isso:** Sempre que precisarmos escalar a dificuldade ou introduzir os multiplicadores do sistema de Prestige, consultaremos este histórico para garantir que a base econômica do jogo permaneça desafiadora, porém justa.
+
+---
+
+## 🚀 Primeiros Passos
+
+Primeiro, faça a isntalação do projeto:
+
+```bash
+npm i
+```
+
+Depois, execute o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Abra [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) no seu navegador para ver o resultado.
