@@ -10,16 +10,11 @@ export const processTick = (state: PlayerState): PlayerState => {
 
   // Pipeline de transformações matemáticas para o Tick
   const newState = R.evolve({
-    money: R.pipe(
-      R.add(salary),
-      R.subtract(R.__, COST_OF_LIVING_PER_TICK),
-      R.max(0) // Na V1, evitamos saldo negativo para simplificar a matemática
-    ),
-    energy: R.pipe(
-      R.add(ENERGY_REGEN_PER_TICK),
-      R.subtract(R.__, jobEnergyDrain),
-      R.clamp(0, MAX_ENERGY) // A energia nunca passa de 100 e não cai abaixo de 0
-    )
+    // Matemática pura e explícita: TS entende na hora e a performance é até melhor
+    money: (m: number) => Math.max(0, m + salary - COST_OF_LIVING_PER_TICK),
+
+    // Continuamos usando o poder do Ramda com R.clamp, mas passando o valor resolvido
+    energy: (e: number) => R.clamp(0, MAX_ENERGY, e + ENERGY_REGEN_PER_TICK - jobEnergyDrain)
   })(state);
 
   return newState as PlayerState;

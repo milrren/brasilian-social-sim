@@ -43,8 +43,11 @@ export const assinarCarteira = (jobId: string) => (state: PlayerState): PlayerSt
 
   if (!hasRequirements) return state;
 
-  return R.pipe(
-    R.assoc('currentJobId', jobId),
-    R.evolve({ money: R.subtract(R.__, job.upfrontCost) })
-  )(state) as PlayerState;
+  return R.evolve({
+    // R.always ignora o valor anterior e sempre retorna o novo jobId
+    currentJobId: R.always(jobId),
+
+    // Uma função pura e explícita deixa o TypeScript 100% feliz
+    money: (m: number) => m - job.upfrontCost
+  })(state) as PlayerState;
 };
