@@ -7,6 +7,7 @@ const initialState: PlayerState = {
   money: 0,
   energy: 100,
   currentJobId: null, // Começa desempregado
+  completedCourses: []
 };
 
 export const useGameLoop = () => {

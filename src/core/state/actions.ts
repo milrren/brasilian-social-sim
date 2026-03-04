@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import { PlayerState } from '../types';
-import { BICO_REWARD, BICO_ENERGY_COST, JOBS } from '../constants';
+import { BICO_REWARD, BICO_ENERGY_COST, JOBS, COURSES } from '../constants';
 
 // Ação de clique: Transforma suor em R$
 export const fazerBico = (state: PlayerState): PlayerState => {
@@ -13,20 +13,38 @@ export const fazerBico = (state: PlayerState): PlayerState => {
   })(state) as PlayerState;
 };
 
+// NOVO: Ação de Estudar
+export const fazerCurso = (courseId: string) => (state: PlayerState): PlayerState => {
+  const course = COURSES[courseId];
+
+  // Validações: O curso existe? Tem dinheiro? Tem energia? Já fez o curso?
+  if (!course) return state;
+  if (state.money < course.cost || state.energy < course.energyCost) return state;
+  if (R.includes(courseId, state.completedCourses || [])) return state;
+
+  // Evoluímos o estado subtraindo os custos e inserindo (append) o ID no currículo
+  return R.evolve({
+    money: R.subtract(R.__, course.cost),
+    energy: R.subtract(R.__, course.energyCost),
+    completedCourses: R.append(courseId)
+  })(state) as PlayerState;
+};
+
 // Transição de estado: Mudança de emprego
 export const assinarCarteira = (jobId: string) => (state: PlayerState): PlayerState => {
   const job = JOBS[jobId];
-  
-  // Barreira de validação: Se não existe o job ou não tem dinheiro, retorna o estado intacto
   if (!job || state.money < job.upfrontCost) return state;
 
-  // R.pipe encadeia as transformações:
-  // 1. Atualiza o ID do emprego
-  // 2. Deduz o custo da entrevista do saldo
+  // Usa R.all para garantir que TODOS os cursos exigidos estão no currículo do jogador
+  const hasRequirements = R.all(
+    (req) => R.includes(req, state.completedCourses),
+    job.requiredCourses
+  );
+
+  if (!hasRequirements) return state;
+
   return R.pipe(
     R.assoc('currentJobId', jobId),
-    R.evolve({ 
-      money: R.subtract(R.__, job.upfrontCost) 
-    })
+    R.evolve({ money: R.subtract(R.__, job.upfrontCost) })
   )(state) as PlayerState;
 };
