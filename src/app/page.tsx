@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from 'react';
 import { useGameLoop } from '../core/hooks/useGameLoop';
 import { fazerBico, assinarCarteira, fazerCurso } from '../core/state/actions';
 import { JOBS, COURSES, BICO_ENERGY_COST, BICO_REWARD, COST_OF_LIVING_PER_TICK } from '../core/constants';
@@ -16,39 +17,48 @@ export default function BrasimsApp() {
   const canDoBico = state.energy >= BICO_ENERGY_COST;
   const currentIncome = currentJob ? currentJob.salaryPerTick : 0;
 
+  const [isFlashing, setIsFlashing] = useState(false);
+
   const getRoomBackground = (income: number) => {
-    // Nível 3: Apartamento (Ex: Renda maior ou igual a R$ 50/seg)
-    if (income >= 8) {
-      return 'bg-[url("/assets/room-nice.png")] bg-cover bg-center';
-    }
-    // Nível 2: Quarto Organizado (Ex: Renda maior que R$ 0, mas menor que 50)
-    if (income > 0) {
-      return 'bg-[url("/assets/room-simple.png")] bg-cover bg-center';
-    }
-    // Nível 1: Base da Pirâmide (Desempregado ou renda zerada)
+    if (income >= 8) return 'bg-[url("/assets/room-nice.png")] bg-cover bg-center';
+    if (income > 0) return 'bg-[url("/assets/room-simple.png")] bg-cover bg-center';
     return 'bg-[url("/assets/room-perrengue.png")] bg-cover bg-center';
   };
 
-  const roomBackground = getRoomBackground(currentIncome);
+  const activeLevel = currentIncome >= 8 ? 'APARTMENT' : currentIncome > 0 ? 'ORGANIZED' : 'PERRENGUE';
+
+  const prevLevelRef = useRef(activeLevel);
+  useEffect(() => {
+    if (prevLevelRef.current !== activeLevel) {
+      setIsFlashing(true);
+      const timer = setTimeout(() => setIsFlashing(false), 100);
+      prevLevelRef.current = activeLevel;
+      return () => clearTimeout(timer);
+    }
+  }, [activeLevel]);
+
+  const baseBgClass = "absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out";
 
   return (
     <main className="min-h-screen relative overflow-hidden font-mono selection:bg-yellow-500/30">
 
-      {/* 1. O CENÁRIO (Background Visual) */}
-      <div className={`absolute inset-0 transition-colors duration-1000 ${roomBackground}`}>
-        {/* Simulação do "Avatar" no centro do quarto */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-400 border-4 border-black rounded-sm flex items-center justify-center shadow-2xl mb-4">
-            <span className="text-4xl">{isEmployed ? '👨‍💻' : '🥵'}</span>
-          </div>
-          <div className="bg-black/50 text-white px-3 py-1 text-xs border border-gray-500 rounded">
-            {isEmployed ? 'Trabalhando...' : 'No Perrengue'}
-          </div>
-        </div>
+      {/* 1. O CENÁRIO (Background Visual - APENAS O FUNDO AGORA) */}
+      <div className="absolute inset-0 bg-black">
+        <div className={`${baseBgClass} bg-[url("/assets/room-perrengue.png")] ${activeLevel === 'PERRENGUE' ? 'opacity-100' : 'opacity-0'}`} />
+        <div className={`${baseBgClass} bg-[url("/assets/room-simple.png")] ${activeLevel === 'ORGANIZED' ? 'opacity-100' : 'opacity-0'}`} />
+        <div className={`${baseBgClass} bg-[url("/assets/room-nice.png")] ${activeLevel === 'APARTMENT' ? 'opacity-100' : 'opacity-0'}`} />
+        
+        {/* O CLARÃO DIVINO DE LEVEL UP */}
+        <div 
+          className={`absolute inset-0 bg-yellow-100 mix-blend-overlay z-10 pointer-events-none transition-opacity duration-1000 ease-out ${
+            isFlashing ? 'opacity-100' : 'opacity-0'
+          }`} 
+        />
+        <div className="absolute inset-0 bg-black/60 pointer-events-none z-20" />
       </div>
 
       {/* 2. CAMADA DE UI (Overlays flutuantes) */}
-      <div className="relative z-10 w-full h-full min-h-screen p-4 flex flex-col justify-between pointer-events-none">
+      <div className="relative z-30 w-full h-full min-h-screen p-4 flex flex-col pointer-events-none">
 
         {/* TOP HUD: Informações Vitais */}
         <header className="pointer-events-auto bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md shadow-lg flex flex-wrap gap-4 justify-between items-center text-white max-w-5xl mx-auto w-full">
@@ -66,11 +76,11 @@ export default function BrasimsApp() {
           </div>
         </header>
 
-        {/* ÁREA CENTRAL: Painéis Laterais */}
-        <div className="flex-1 flex flex-col md:flex-row justify-between items-start gap-4 mt-4 w-full max-w-7xl mx-auto">
+        {/* ÁREA CENTRAL E INFERIOR (Grid Responsivo) */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 md:grid-rows-[1fr_auto] gap-4 mt-4 w-full max-w-7xl mx-auto h-full pointer-events-none">
 
           {/* PAINEL ESQUERDO: Status do Personagem */}
-          <aside className="pointer-events-auto w-full md:w-80 flex flex-col gap-4">
+          <aside className="pointer-events-auto w-full flex flex-col gap-4 order-1 md:col-start-1 md:row-start-1">
             <section className="bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md text-white shadow-lg">
               <h2 className="text-lg text-gray-300 border-b-2 border-gray-600 pb-1 mb-3">Status Atual</h2>
               {isEmployed ? (
@@ -100,9 +110,38 @@ export default function BrasimsApp() {
             </section>
           </aside>
 
-          {/* PAINEL DIREITO: Ações e Mercado */}
-          <aside className="pointer-events-auto w-full md:w-96 flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          {/* O AVATAR E O BOTÃO PRINCIPAL (Fluxo Natural no Centro/Embaixo) */}
+          <div className="pointer-events-auto w-full flex flex-col items-center justify-end pt-4 md:pt-0 pb-4 sm:pb-8 order-2 md:col-span-3 md:row-start-2 z-10 gap-3">
+            
+            {/* NOVO AVATAR INTEGRADO */}
+            <div className="flex flex-col items-center group">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-400 border-2 sm:border-4 border-black rounded-sm flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+                <span className="text-3xl sm:text-5xl">{isEmployed ? '👨‍💻' : '🥵'}</span>
+              </div>
+              <div className="bg-black/80 text-white px-3 py-1 text-[10px] sm:text-xs border border-gray-500 rounded font-bold shadow-lg uppercase tracking-widest mt-[-10px] z-10">
+                {isEmployed ? 'Trabalhando...' : 'No Perrengue'}
+              </div>
+            </div>
 
+            <button
+              onClick={() => dispatch(fazerBico)}
+              disabled={!canDoBico}
+              className={`px-8 py-4 sm:px-12 sm:py-6 rounded-md font-bold text-lg sm:text-2xl border-b-8 transition-all active:border-b-0 active:translate-y-2 shadow-[0_0_20px_rgba(0,0,0,0.5)] w-full md:w-auto ${
+                canDoBico
+                  ? 'bg-yellow-500 hover:bg-yellow-400 text-gray-900 border-yellow-700'
+                  : 'bg-gray-700 text-gray-500 border-gray-900 cursor-not-allowed'
+              }`}
+            >
+              FAZER BICO
+              <span className="block text-xs sm:text-sm font-normal mt-1 opacity-80">
+                Vender Brigadeiro (+R$ {BICO_REWARD} / -⚡ {BICO_ENERGY_COST})
+              </span>
+            </button>
+          </div>
+
+          {/* PAINEL DIREITO: Ações e Mercado */}
+          <aside className="pointer-events-auto w-full flex flex-col gap-4 order-3 md:col-start-3 md:row-start-1 max-h-[50vh] md:max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+            
             {/* Educação */}
             <section className="bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md text-white shadow-lg">
               <h2 className="text-lg text-gray-300 border-b-2 border-gray-600 pb-1 mb-3">Estudos</h2>
@@ -184,23 +223,6 @@ export default function BrasimsApp() {
               </div>
             </section>
           </aside>
-        </div>
-
-        {/* BOTTOM CENTER: O Botão Principal (O Corre) */}
-        <div className="pointer-events-auto flex justify-center pb-4 sm:pb-8 mt-auto w-full">
-          <button
-            onClick={() => dispatch(fazerBico)}
-            disabled={!canDoBico}
-            className={`px-8 py-4 sm:px-12 sm:py-6 rounded-md font-bold text-lg sm:text-2xl border-b-8 transition-all active:border-b-0 active:translate-y-2 shadow-[0_0_20px_rgba(0,0,0,0.5)] ${canDoBico
-              ? 'bg-yellow-500 hover:bg-yellow-400 text-gray-900 border-yellow-700'
-              : 'bg-gray-700 text-gray-500 border-gray-900 cursor-not-allowed'
-              }`}
-          >
-            FAZER BICO
-            <span className="block text-xs sm:text-sm font-normal mt-1 opacity-80">
-              Vender Brigadeiro (+R$ {BICO_REWARD} / -⚡ {BICO_ENERGY_COST})
-            </span>
-          </button>
         </div>
 
       </div>
