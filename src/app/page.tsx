@@ -4,7 +4,7 @@ import { useGameLoop } from '../core/hooks/useGameLoop';
 import { fazerBico, assinarCarteira, fazerCurso } from '../core/state/actions';
 import { JOBS, COURSES, BICO_ENERGY_COST, BICO_REWARD, COST_OF_LIVING_PER_TICK } from '../core/constants';
 
-export default function OCorreApp() {
+export default function BrasimsApp() {
   const { state, dispatch } = useGameLoop();
 
   // Garante que array de cursos exista
@@ -14,15 +14,26 @@ export default function OCorreApp() {
   const isEmployed = state.currentJobId !== null;
   const currentJob = isEmployed ? JOBS[state.currentJobId!] : null;
   const canDoBico = state.energy >= BICO_ENERGY_COST;
+  const currentIncome = currentJob ? currentJob.salaryPerTick : 0;
 
-  // Lógica visual: O "quarto" muda se o cara tá empregado
-  const roomBackground = isEmployed 
-    ? 'bg-gradient-to-br from-slate-700 to-slate-900 border-slate-600' // Quarto pintado
-    : 'bg-gradient-to-br from-stone-800 to-stone-950 border-stone-700'; // Parede no reboco
+  const getRoomBackground = (income: number) => {
+    // Nível 3: Apartamento (Ex: Renda maior ou igual a R$ 50/seg)
+    if (income >= 8) {
+      return 'bg-[url("/assets/room-nice.png")] bg-cover bg-center';
+    }
+    // Nível 2: Quarto Organizado (Ex: Renda maior que R$ 0, mas menor que 50)
+    if (income > 0) {
+      return 'bg-[url("/assets/room-simple.png")] bg-cover bg-center';
+    }
+    // Nível 1: Base da Pirâmide (Desempregado ou renda zerada)
+    return 'bg-[url("/assets/room-perrengue.png")] bg-cover bg-center';
+  };
+
+  const roomBackground = getRoomBackground(currentIncome);
 
   return (
     <main className="min-h-screen relative overflow-hidden font-mono selection:bg-yellow-500/30">
-      
+
       {/* 1. O CENÁRIO (Background Visual) */}
       <div className={`absolute inset-0 transition-colors duration-1000 ${roomBackground}`}>
         {/* Simulação do "Avatar" no centro do quarto */}
@@ -38,7 +49,7 @@ export default function OCorreApp() {
 
       {/* 2. CAMADA DE UI (Overlays flutuantes) */}
       <div className="relative z-10 w-full h-full min-h-screen p-4 flex flex-col justify-between pointer-events-none">
-        
+
         {/* TOP HUD: Informações Vitais */}
         <header className="pointer-events-auto bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md shadow-lg flex flex-wrap gap-4 justify-between items-center text-white max-w-5xl mx-auto w-full">
           <div>
@@ -57,7 +68,7 @@ export default function OCorreApp() {
 
         {/* ÁREA CENTRAL: Painéis Laterais */}
         <div className="flex-1 flex flex-col md:flex-row justify-between items-start gap-4 mt-4 w-full max-w-7xl mx-auto">
-          
+
           {/* PAINEL ESQUERDO: Status do Personagem */}
           <aside className="pointer-events-auto w-full md:w-80 flex flex-col gap-4">
             <section className="bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md text-white shadow-lg">
@@ -91,7 +102,7 @@ export default function OCorreApp() {
 
           {/* PAINEL DIREITO: Ações e Mercado */}
           <aside className="pointer-events-auto w-full md:w-96 flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-            
+
             {/* Educação */}
             <section className="bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md text-white shadow-lg">
               <h2 className="text-lg text-gray-300 border-b-2 border-gray-600 pb-1 mb-3">Estudos</h2>
@@ -104,13 +115,12 @@ export default function OCorreApp() {
                       key={course.id}
                       onClick={() => dispatch(fazerCurso(course.id))}
                       disabled={isCompleted || !canAfford}
-                      className={`w-full p-2 text-left border-2 transition-all text-xs ${
-                        isCompleted 
-                          ? 'bg-gray-800 border-green-700 text-gray-500 cursor-not-allowed'
-                          : canAfford
-                            ? 'bg-blue-950 border-blue-600 hover:bg-blue-900 text-white hover:pl-3'
-                            : 'bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed'
-                      }`}
+                      className={`w-full p-2 text-left border-2 transition-all text-xs ${isCompleted
+                        ? 'bg-gray-800 border-green-700 text-gray-500 cursor-not-allowed'
+                        : canAfford
+                          ? 'bg-blue-950 border-blue-600 hover:bg-blue-900 text-white hover:pl-3'
+                          : 'bg-gray-800 border-gray-700 text-gray-600 cursor-not-allowed'
+                        }`}
                     >
                       <div className="font-bold flex justify-between">
                         <span>{course.name}</span>
@@ -139,10 +149,10 @@ export default function OCorreApp() {
                     <div key={job.id} className="p-2 border-2 border-gray-600 bg-gray-800 text-xs">
                       <div className="font-bold text-gray-200 mb-1">{job.name}</div>
                       <div className="text-gray-400 mb-2">
-                        +R$ {job.salaryPerTick} | -⚡ {job.energyCostPerTick} <br/>
+                        +R$ {job.salaryPerTick} | -⚡ {job.energyCostPerTick} <br />
                         <span className="text-yellow-600">Entrevista: R$ {job.upfrontCost}</span>
                       </div>
-                      
+
                       {job.requiredCourses.length > 0 && (
                         <div className="mb-2">
                           {job.requiredCourses.map(req => {
@@ -159,13 +169,12 @@ export default function OCorreApp() {
                       <button
                         onClick={() => dispatch(assinarCarteira(job.id))}
                         disabled={!canHire}
-                        className={`w-full py-1 border-2 font-bold transition-transform ${
-                          isCurrentJob
-                            ? 'bg-green-900 border-green-700 text-green-500 cursor-not-allowed'
-                            : canHire
-                              ? 'bg-green-600 border-green-400 text-white hover:bg-green-500 active:translate-y-1'
-                              : 'bg-gray-700 border-gray-600 text-gray-500 cursor-not-allowed'
-                        }`}
+                        className={`w-full py-1 border-2 font-bold transition-transform ${isCurrentJob
+                          ? 'bg-green-900 border-green-700 text-green-500 cursor-not-allowed'
+                          : canHire
+                            ? 'bg-green-600 border-green-400 text-white hover:bg-green-500 active:translate-y-1'
+                            : 'bg-gray-700 border-gray-600 text-gray-500 cursor-not-allowed'
+                          }`}
                       >
                         {isCurrentJob ? 'ATUAL' : canHire ? 'APLICAR' : 'BLOQUEADO'}
                       </button>
@@ -182,11 +191,10 @@ export default function OCorreApp() {
           <button
             onClick={() => dispatch(fazerBico)}
             disabled={!canDoBico}
-            className={`px-8 py-4 sm:px-12 sm:py-6 rounded-md font-bold text-lg sm:text-2xl border-b-8 transition-all active:border-b-0 active:translate-y-2 shadow-[0_0_20px_rgba(0,0,0,0.5)] ${
-              canDoBico 
-                ? 'bg-yellow-500 hover:bg-yellow-400 text-gray-900 border-yellow-700' 
-                : 'bg-gray-700 text-gray-500 border-gray-900 cursor-not-allowed'
-            }`}
+            className={`px-8 py-4 sm:px-12 sm:py-6 rounded-md font-bold text-lg sm:text-2xl border-b-8 transition-all active:border-b-0 active:translate-y-2 shadow-[0_0_20px_rgba(0,0,0,0.5)] ${canDoBico
+              ? 'bg-yellow-500 hover:bg-yellow-400 text-gray-900 border-yellow-700'
+              : 'bg-gray-700 text-gray-500 border-gray-900 cursor-not-allowed'
+              }`}
           >
             FAZER BICO
             <span className="block text-xs sm:text-sm font-normal mt-1 opacity-80">
