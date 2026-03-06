@@ -46,7 +46,7 @@ export function GeneralInfoPanel({ state }: GeneralInfoPanelProps) {
       <section className="bg-gray-800/70 border-2 border-gray-700 rounded-lg p-4 space-y-2">
         <h3 className="text-yellow-400 font-bold text-lg">Energia detalhada</h3>
         <div className="text-sm text-gray-200 space-y-1">
-          <p className="flex justify-between"><span>Recuperação base:</span><span className="text-blue-300 font-bold">+{energyBreakdown.regen} ⚡/s</span></p>
+          <p className="flex justify-between"><span>Recuperação base:</span><span className="text-blue-300 font-bold">+{energyBreakdown.baseRegen} ⚡/s</span></p>
           <p className="flex justify-between"><span>Bônus de melhorias:</span><span className="text-blue-200 font-bold">+{energyBreakdown.regenBonusFromUpgrades} ⚡/s</span></p>
           <p className="flex justify-between"><span>Consumo do trabalho:</span><span className="text-orange-300 font-bold">-{energyBreakdown.drain} ⚡/s</span></p>
           <p className="flex justify-between border-t border-gray-700 pt-2 mt-2"><span>Balanço de energia:</span><span className={`font-bold ${energyBalancePerTick >= 0 ? 'text-blue-300' : 'text-orange-300'}`}>{formatSignedNumber(energyBalancePerTick, ' ⚡/s')}</span></p>
