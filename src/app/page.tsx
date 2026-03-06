@@ -116,7 +116,7 @@ export default function BrasimsApp() {
             >
               📚
               {hasEducationAvailable && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg animate-pulse">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg">
                   {availableCoursesCount}
                 </span>
               )}
@@ -128,7 +128,7 @@ export default function BrasimsApp() {
             >
               💼
               {hasJobsAvailable && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg animate-pulse">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg">
                   {availableJobsCount}
                 </span>
               )}
@@ -140,7 +140,7 @@ export default function BrasimsApp() {
             >
               🏡
               {hasLifeUpgradesAvailable && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg animate-pulse">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg">
                   {availableLifeUpgradesCount}
                 </span>
               )}
