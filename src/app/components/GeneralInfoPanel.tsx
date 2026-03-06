@@ -1,5 +1,5 @@
 import { OFFLINE_PROGRESS_MULTIPLIER, JOBS } from '../../core/constants';
-import { getEnergyBalancePerTick, getIncomePerTick, getNetProgressPerTick } from '../../core/state/economy';
+import { getEnergyBalancePerTick, getEnergyBreakdownPerTick, getIncomePerTick, getNetProgressPerTick } from '../../core/state/economy';
 import { getCostOfLivingBreakdown } from '../../core/state/lifeUpgrades';
 import { PlayerState } from '../../core/types';
 
@@ -23,6 +23,7 @@ export function GeneralInfoPanel({ state }: GeneralInfoPanelProps) {
   const incomePerTick = getIncomePerTick(state);
   const netProgressPerTick = getNetProgressPerTick(state);
   const energyBalancePerTick = getEnergyBalancePerTick(state);
+  const energyBreakdown = getEnergyBreakdownPerTick(state);
   const costBreakdown = getCostOfLivingBreakdown(state);
 
   const currentJob = state.currentJobId ? JOBS[state.currentJobId] : null;
@@ -39,7 +40,15 @@ export function GeneralInfoPanel({ state }: GeneralInfoPanelProps) {
           <p className="flex justify-between"><span>Ganhos (trabalho):</span><span className="text-green-400 font-bold">{formatSignedCurrency(incomePerTick)}</span></p>
           <p className="flex justify-between"><span>Custo de vida total:</span><span className="text-red-400 font-bold">-R$ {costBreakdown.total.toFixed(2)}/s</span></p>
           <p className="flex justify-between border-t border-gray-700 pt-2 mt-2"><span>Progresso líquido:</span><span className={`font-bold ${netProgressPerTick >= 0 ? 'text-green-300' : 'text-red-300'}`}>{formatSignedCurrency(netProgressPerTick)}</span></p>
-          <p className="flex justify-between"><span>Balanço de energia:</span><span className={`font-bold ${energyBalancePerTick >= 0 ? 'text-blue-300' : 'text-orange-300'}`}>{formatSignedNumber(energyBalancePerTick, ' ⚡/s')}</span></p>
+        </div>
+      </section>
+
+      <section className="bg-gray-800/70 border-2 border-gray-700 rounded-lg p-4 space-y-2">
+        <h3 className="text-yellow-400 font-bold text-lg">Energia detalhada</h3>
+        <div className="text-sm text-gray-200 space-y-1">
+          <p className="flex justify-between"><span>Recuperação base:</span><span className="text-blue-300 font-bold">+{energyBreakdown.regen} ⚡/s</span></p>
+          <p className="flex justify-between"><span>Consumo do trabalho:</span><span className="text-orange-300 font-bold">-{energyBreakdown.drain} ⚡/s</span></p>
+          <p className="flex justify-between border-t border-gray-700 pt-2 mt-2"><span>Balanço de energia:</span><span className={`font-bold ${energyBalancePerTick >= 0 ? 'text-blue-300' : 'text-orange-300'}`}>{formatSignedNumber(energyBalancePerTick, ' ⚡/s')}</span></p>
         </div>
       </section>
 
