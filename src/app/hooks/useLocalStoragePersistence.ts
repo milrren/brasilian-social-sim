@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { PlayerState } from '../../core/types';
 import {
-  COST_OF_LIVING_PER_TICK,
   ENERGY_REGEN_PER_TICK,
   JOBS,
   MAX_ENERGY,
   OFFLINE_PROGRESS_MULTIPLIER,
   TICK_RATE_MS,
 } from '../../core/constants';
+import { getTotalCostOfLivingPerTick } from '../../core/state/lifeUpgrades';
 
 const STORAGE_KEY = 'brasims_game_state';
 const AUTOSAVE_INTERVAL_MS = 15000; // Salva a cada 15 segundos
@@ -48,7 +48,8 @@ function isValidPlayerState(value: unknown): value is PlayerState {
     typeof candidate.money === 'number' &&
     typeof candidate.energy === 'number' &&
     (typeof candidate.currentJobId === 'string' || candidate.currentJobId === null) &&
-    Array.isArray(candidate.completedCourses)
+    Array.isArray(candidate.completedCourses) &&
+    Array.isArray(candidate.activeLifeUpgrades)
   );
 }
 
@@ -65,7 +66,7 @@ function applyOfflineProgress(state: PlayerState, savedAt: number): LoadGameStat
   }
 
   const job = state.currentJobId ? JOBS[state.currentJobId] : null;
-  const moneyDeltaPerTick = (job?.salaryPerTick ?? 0) - COST_OF_LIVING_PER_TICK;
+  const moneyDeltaPerTick = (job?.salaryPerTick ?? 0) - getTotalCostOfLivingPerTick(state);
   const energyDeltaPerTick = ENERGY_REGEN_PER_TICK - (job?.energyCostPerTick ?? 0);
 
   const nextState: PlayerState = {
@@ -111,6 +112,30 @@ function loadPersistedGameState(): PersistedGameState | null {
         savedAt: Date.now(),
         state: parsed,
       };
+    }
+
+    if (parsed && typeof parsed === 'object') {
+      const legacyState = parsed as Partial<PlayerState>;
+      if (
+        typeof legacyState.money === 'number' &&
+        typeof legacyState.energy === 'number' &&
+        (typeof legacyState.currentJobId === 'string' || legacyState.currentJobId === null) &&
+        Array.isArray(legacyState.completedCourses)
+      ) {
+        return {
+          version: 1,
+          savedAt: Date.now(),
+          state: {
+            money: legacyState.money,
+            energy: legacyState.energy,
+            currentJobId: legacyState.currentJobId,
+            completedCourses: legacyState.completedCourses,
+            activeLifeUpgrades: Array.isArray(legacyState.activeLifeUpgrades)
+              ? legacyState.activeLifeUpgrades
+              : [],
+          },
+        };
+      }
     }
   } catch (error) {
     console.error('[Load] Erro ao carregar estado:', error);

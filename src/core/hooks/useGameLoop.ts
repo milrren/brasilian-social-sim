@@ -12,7 +12,8 @@ const defaultState: PlayerState = {
   money: 0,
   energy: 100,
   currentJobId: null, // Começa desempregado
-  completedCourses: []
+  completedCourses: [],
+  activeLifeUpgrades: [],
 };
 
 export const useGameLoop = () => {

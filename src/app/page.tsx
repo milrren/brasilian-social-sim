@@ -3,14 +3,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { useGameLoop } from '../core/hooks/useGameLoop';
 import { fazerBico } from '../core/state/actions';
-import { JOBS, BICO_ENERGY_COST, BICO_REWARD, COST_OF_LIVING_PER_TICK } from '../core/constants';
+import { JOBS, BICO_ENERGY_COST, BICO_REWARD } from '../core/constants';
 import { AdaptivePanel } from './components/AdaptivePanel';
 import { StatusPanel } from './components/StatusPanel';
 import { JobsPanel } from './components/JobsPanel';
 import { EducationPanel } from './components/EducationPanel';
-import { hasAvailableCourses, hasAvailableJobs, countAvailableCourses, countAvailableJobs } from './utils/gameHelpers';
+import { LifeUpgradesPanel } from './components/LifeUpgradesPanel';
+import {
+  hasAvailableCourses,
+  hasAvailableJobs,
+  countAvailableCourses,
+  countAvailableJobs,
+  hasAvailableLifeUpgrades,
+  countAvailableLifeUpgrades,
+} from './utils/gameHelpers';
 import { AutosaveIndicator } from './components/AutosaveIndicator';
 import { OfflineProgressNotice } from './components/OfflineProgressNotice';
+import { getActiveBackgroundAsset, getTotalCostOfLivingPerTick } from '../core/state/lifeUpgrades';
 
 export default function BrasimsApp() {
   const { state, dispatch, offlineProgressSummary, dismissOfflineProgressSummary } = useGameLoop();
@@ -20,26 +29,27 @@ export default function BrasimsApp() {
   const currentJob = isEmployed ? JOBS[state.currentJobId!] : null;
   const canDoBico = state.energy >= BICO_ENERGY_COST;
   const currentIncome = currentJob ? currentJob.salaryPerTick : 0;
+  const totalCostOfLiving = getTotalCostOfLivingPerTick(state);
 
   // Indicadores de oportunidades
   const hasEducationAvailable = hasAvailableCourses(state);
   const hasJobsAvailable = hasAvailableJobs(state);
+  const hasLifeUpgradesAvailable = hasAvailableLifeUpgrades(state);
   const availableCoursesCount = countAvailableCourses(state);
   const availableJobsCount = countAvailableJobs(state);
+  const availableLifeUpgradesCount = countAvailableLifeUpgrades(state);
 
   // Estado dos modais
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const [isJobsOpen, setIsJobsOpen] = useState(false);
+  const [isLifeUpgradesOpen, setIsLifeUpgradesOpen] = useState(false);
 
   const [isFlashing, setIsFlashing] = useState(false);
 
-  const getRoomBackground = (income: number) => {
-    if (income >= 8) return 'bg-[url("/assets/room-nice.png")] bg-cover bg-center';
-    if (income > 0) return 'bg-[url("/assets/room-simple.png")] bg-cover bg-center';
-    return 'bg-[url("/assets/room-perrengue.png")] bg-cover bg-center';
-  };
-
   const activeLevel = currentIncome >= 8 ? 'APARTMENT' : currentIncome > 0 ? 'ORGANIZED' : 'PERRENGUE';
+  const defaultBackgroundAsset = '/assets/room-perrengue.png';
+
+  const activeBackgroundAsset = getActiveBackgroundAsset(state) || defaultBackgroundAsset;
 
   const prevLevelRef = useRef(activeLevel);
   useEffect(() => {
@@ -58,9 +68,10 @@ export default function BrasimsApp() {
 
       {/* 1. O CENÁRIO (Background Visual) */}
       <div className="absolute inset-0 bg-black">
-        <div className={`${baseBgClass} bg-[url("/assets/room-perrengue.png")] ${activeLevel === 'PERRENGUE' ? 'opacity-100' : 'opacity-0'}`} />
-        <div className={`${baseBgClass} bg-[url("/assets/room-simple.png")] ${activeLevel === 'ORGANIZED' ? 'opacity-100' : 'opacity-0'}`} />
-        <div className={`${baseBgClass} bg-[url("/assets/room-nice.png")] ${activeLevel === 'APARTMENT' ? 'opacity-100' : 'opacity-0'}`} />
+        <div
+          className={baseBgClass}
+          style={{ backgroundImage: `url("${activeBackgroundAsset}")` }}
+        />
         
         {/* O CLARÃO DIVINO DE LEVEL UP */}
         <div 
@@ -78,7 +89,7 @@ export default function BrasimsApp() {
         <header className="pointer-events-auto bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md shadow-lg flex flex-wrap gap-4 justify-between items-center text-white w-full">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-yellow-400 drop-shadow-md">Brasims</h1>
-            <p className="text-xs text-red-400 mt-1">Custo: -R$ {COST_OF_LIVING_PER_TICK}/seg</p>
+            <p className="text-xs text-red-400 mt-1">Custo: -R$ {totalCostOfLiving}/seg</p>
           </div>
           
           <div className="flex gap-4 sm:gap-8 text-lg sm:text-xl font-bold">
@@ -113,6 +124,18 @@ export default function BrasimsApp() {
               {hasJobsAvailable && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg animate-pulse">
                   {availableJobsCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsLifeUpgradesOpen(true)}
+              className="pointer-events-auto relative p-2 sm:p-3 bg-purple-600 hover:bg-purple-500 border-2 border-purple-400 rounded-lg transition-all active:translate-y-1 flex items-center justify-center text-2xl sm:text-3xl shadow-lg"
+              title="Melhoria de Vida"
+            >
+              🏡
+              {hasLifeUpgradesAvailable && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg animate-pulse">
+                  {availableLifeUpgradesCount}
                 </span>
               )}
             </button>
@@ -174,6 +197,14 @@ export default function BrasimsApp() {
         title="💼 Mercado de Trabalho"
       >
         <JobsPanel state={state} dispatch={dispatch} />
+      </AdaptivePanel>
+
+      <AdaptivePanel
+        isOpen={isLifeUpgradesOpen}
+        onClose={() => setIsLifeUpgradesOpen(false)}
+        title="🏡 Melhoria de Vida"
+      >
+        <LifeUpgradesPanel state={state} dispatch={dispatch} />
       </AdaptivePanel>
 
       {/* Indicador de Autosave */}

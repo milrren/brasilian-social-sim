@@ -1,4 +1,4 @@
-import { Job, Course } from '../types';
+import { Job, Course, LifeUpgrade } from '../types';
 
 // A velocidade que o tempo passa e a vida cobra (1 segundo)
 export const TICK_RATE_MS = 1000;
@@ -9,7 +9,8 @@ export const OFFLINE_PROGRESS_MULTIPLIER = 0.2;
 // Limites do corpo humano no corre
 export const MAX_ENERGY = 100;
 export const ENERGY_REGEN_PER_TICK = 5; // Recuperação passiva de energia
-export const COST_OF_LIVING_PER_TICK = 1; // O dreno infinito de dinheiro
+export const BASE_COST_OF_LIVING_PER_TICK = 1; // O dreno base de dinheiro
+export const COST_OF_LIVING_PER_TICK = BASE_COST_OF_LIVING_PER_TICK; // compatibilidade
 
 // Bico: O esforço manual inicial
 export const BICO_REWARD = 15;
@@ -42,4 +43,44 @@ export const JOBS: Record<string, Job> = {
     upfrontCost: 300,
     requiredCourses: ['info-basica'], // A Barreira da V2
   }
+};
+
+export const LIFE_UPGRADES: Record<string, LifeUpgrade> = {
+  'casa-simples': {
+    id: 'casa-simples',
+    name: 'Casa Simples (Aluguel)',
+    category: 'housing',
+    upfrontCost: 250,
+    additionalCostOfLivingPerTick: 1,
+    backgroundAsset: '/assets/room-simple.png',
+  },
+  'apto-bom': {
+    id: 'apto-bom',
+    name: 'Apartamento Melhor',
+    category: 'housing',
+    upfrontCost: 700,
+    additionalCostOfLivingPerTick: 3,
+    backgroundAsset: '/assets/room-nice.png',
+  },
+  academia: {
+    id: 'academia',
+    name: 'Plano de Academia',
+    category: 'wellness',
+    upfrontCost: 180,
+    additionalCostOfLivingPerTick: 1,
+  },
+  'dieta-saudavel': {
+    id: 'dieta-saudavel',
+    name: 'Dieta Saudável',
+    category: 'wellness',
+    upfrontCost: 220,
+    additionalCostOfLivingPerTick: 1,
+  },
+  'carro-popular': {
+    id: 'carro-popular',
+    name: 'Carro Próprio (Popular)',
+    category: 'mobility',
+    upfrontCost: 950,
+    additionalCostOfLivingPerTick: 2,
+  },
 };

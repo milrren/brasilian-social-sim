@@ -1,5 +1,5 @@
 import { PlayerState } from '../../core/types';
-import { COURSES, JOBS } from '../../core/constants';
+import { COURSES, JOBS, LIFE_UPGRADES } from '../../core/constants';
 
 /**
  * Verifica se há algum curso disponível que o jogador pode fazer
@@ -58,5 +58,25 @@ export function countAvailableJobs(state: PlayerState): number {
     const canAffordUpfront = state.money >= job.upfrontCost;
     const canHire = !isCurrentJob && hasRequirements && canAffordUpfront;
     return canHire;
+  }).length;
+}
+
+export function hasAvailableLifeUpgrades(state: PlayerState): boolean {
+  const activeUpgrades = state.activeLifeUpgrades || [];
+
+  return Object.values(LIFE_UPGRADES).some((upgrade) => {
+    const isActive = activeUpgrades.includes(upgrade.id);
+    const canAfford = state.money >= upgrade.upfrontCost;
+    return !isActive && canAfford;
+  });
+}
+
+export function countAvailableLifeUpgrades(state: PlayerState): number {
+  const activeUpgrades = state.activeLifeUpgrades || [];
+
+  return Object.values(LIFE_UPGRADES).filter((upgrade) => {
+    const isActive = activeUpgrades.includes(upgrade.id);
+    const canAfford = state.money >= upgrade.upfrontCost;
+    return !isActive && canAfford;
   }).length;
 }

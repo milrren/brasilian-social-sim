@@ -14,9 +14,19 @@ export interface Job {
   requiredCourses: string[];
 }
 
+export interface LifeUpgrade {
+  id: string;
+  name: string;
+  category: 'housing' | 'wellness' | 'mobility';
+  upfrontCost: number;
+  additionalCostOfLivingPerTick: number;
+  backgroundAsset?: string;
+}
+
 export interface PlayerState {
   money: number;
   energy: number;
   currentJobId: string | null; // null = desempregado
   completedCourses: string[];
+  activeLifeUpgrades: string[];
 }

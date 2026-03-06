@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import { PlayerState } from '../types';
-import { BICO_REWARD, BICO_ENERGY_COST, JOBS, COURSES } from '../constants';
+import { BICO_REWARD, BICO_ENERGY_COST, JOBS, COURSES, LIFE_UPGRADES } from '../constants';
 
 // Ação de clique: Transforma suor em R$
 export const fazerBico = (state: PlayerState): PlayerState => {
@@ -49,5 +49,19 @@ export const assinarCarteira = (jobId: string) => (state: PlayerState): PlayerSt
 
     // Uma função pura e explícita deixa o TypeScript 100% feliz
     money: (m: number) => m - job.upfrontCost
+  })(state) as PlayerState;
+};
+
+export const comprarMelhoriaVida = (upgradeId: string) => (state: PlayerState): PlayerState => {
+  const upgrade = LIFE_UPGRADES[upgradeId];
+  if (!upgrade) return state;
+
+  const activeUpgrades = state.activeLifeUpgrades || [];
+  if (activeUpgrades.includes(upgradeId)) return state;
+  if (state.money < upgrade.upfrontCost) return state;
+
+  return R.evolve({
+    money: (m: number) => m - upgrade.upfrontCost,
+    activeLifeUpgrades: (current: string[] = []) => [...current, upgradeId],
   })(state) as PlayerState;
 };

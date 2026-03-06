@@ -1,0 +1,25 @@
+import { LIFE_UPGRADES, BASE_COST_OF_LIVING_PER_TICK } from '../constants';
+import { PlayerState } from '../types';
+
+export const getActiveLifeUpgrades = (state: PlayerState) => state.activeLifeUpgrades || [];
+
+export const getTotalCostOfLivingPerTick = (state: PlayerState) => {
+  const upgradesCost = getActiveLifeUpgrades(state).reduce((total, upgradeId) => {
+    const upgrade = LIFE_UPGRADES[upgradeId];
+    if (!upgrade) return total;
+    return total + upgrade.additionalCostOfLivingPerTick;
+  }, 0);
+
+  return BASE_COST_OF_LIVING_PER_TICK + upgradesCost;
+};
+
+export const getActiveBackgroundAsset = (state: PlayerState) => {
+  const activeWithAssets = getActiveLifeUpgrades(state)
+    .map((upgradeId) => LIFE_UPGRADES[upgradeId])
+    .filter((upgrade) => Boolean(upgrade?.backgroundAsset));
+
+  if (activeWithAssets.length === 0) return null;
+
+  // Mais recente ganha prioridade visual
+  return activeWithAssets[activeWithAssets.length - 1]?.backgroundAsset || null;
+};
