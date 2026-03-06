@@ -1,6 +1,6 @@
 import { PlayerState } from '../../core/types';
 import { LIFE_UPGRADES } from '../../core/constants';
-import { comprarMelhoriaVida } from '../../core/state/actions';
+import { comprarMelhoriaVida, removerMelhoriaVida } from '../../core/state/actions';
 
 interface LifeUpgradesPanelProps {
   state: PlayerState;
@@ -76,6 +76,15 @@ export function LifeUpgradesPanel({ state, dispatch }: LifeUpgradesPanelProps) {
                   }`}
                 >
                   {canAfford ? 'Adquirir Melhoria' : 'Sem Recursos'}
+                </button>
+              )}
+
+              {isActive && (
+                <button
+                  onClick={() => dispatch(removerMelhoriaVida(upgrade.id))}
+                  className="w-full py-2 px-4 rounded font-bold transition-all border-2 bg-red-800 border-red-600 hover:bg-red-700 active:translate-y-1 text-white cursor-pointer"
+                >
+                  Remover Melhoria
                 </button>
               )}
             </div>

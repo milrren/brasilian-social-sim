@@ -44,12 +44,16 @@ export const getTotalEnergyRegenPerTick = (state: PlayerState) => {
 };
 
 export const getActiveBackgroundAsset = (state: PlayerState) => {
-  const activeWithAssets = getActiveLifeUpgrades(state)
+  const activeHousingWithAssets = getActiveLifeUpgrades(state)
     .map((upgradeId) => LIFE_UPGRADES[upgradeId])
-    .filter((upgrade) => Boolean(upgrade?.backgroundAsset));
+    .filter((upgrade) => Boolean(upgrade?.backgroundAsset) && upgrade?.category === 'housing');
 
-  if (activeWithAssets.length === 0) return null;
+  if (activeHousingWithAssets.length === 0) return null;
 
-  // Mais recente ganha prioridade visual
-  return activeWithAssets[activeWithAssets.length - 1]?.backgroundAsset || null;
+  const highestValueHousing = activeHousingWithAssets.reduce((currentHighest, upgrade) => {
+    if (!currentHighest) return upgrade;
+    return upgrade.upfrontCost > currentHighest.upfrontCost ? upgrade : currentHighest;
+  }, activeHousingWithAssets[0]);
+
+  return highestValueHousing?.backgroundAsset || null;
 };

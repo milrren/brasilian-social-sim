@@ -65,3 +65,12 @@ export const comprarMelhoriaVida = (upgradeId: string) => (state: PlayerState): 
     activeLifeUpgrades: (current: string[] = []) => [...current, upgradeId],
   })(state) as PlayerState;
 };
+
+export const removerMelhoriaVida = (upgradeId: string) => (state: PlayerState): PlayerState => {
+  const activeUpgrades = state.activeLifeUpgrades || [];
+  if (!activeUpgrades.includes(upgradeId)) return state;
+
+  return R.evolve({
+    activeLifeUpgrades: (current: string[] = []) => current.filter((id) => id !== upgradeId),
+  })(state) as PlayerState;
+};
