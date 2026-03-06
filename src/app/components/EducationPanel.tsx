@@ -38,8 +38,14 @@ export function EducationPanel({ state, dispatch }: EducationPanelProps) {
               </div>
 
               <div className="text-sm text-gray-300 mb-3 space-y-1">
-                <p>💰 Custo: <span className="text-yellow-400 font-bold">R$ {course.cost}</span></p>
-                <p>⚡ Fadiga: <span className="text-blue-400 font-bold">{course.energyCost}</span></p>
+                <p className="flex justify-between items-center">
+                  <span>💰 Custo:</span>
+                  <span className="text-yellow-400 font-bold whitespace-nowrap ml-2">R$ {course.cost}</span>
+                </p>
+                <p className="flex justify-between items-center">
+                  <span>⚡ Fadiga:</span>
+                  <span className="text-blue-400 font-bold whitespace-nowrap ml-2">{course.energyCost}</span>
+                </p>
               </div>
 
               {!isCompleted && (

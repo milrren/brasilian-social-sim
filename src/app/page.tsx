@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useGameLoop } from '../core/hooks/useGameLoop';
 import { fazerBico } from '../core/state/actions';
 import { JOBS, BICO_ENERGY_COST, BICO_REWARD, COST_OF_LIVING_PER_TICK } from '../core/constants';
-import { Modal } from './components/Modal';
+import { AdaptivePanel } from './components/AdaptivePanel';
 import { StatusPanel } from './components/StatusPanel';
 import { JobsPanel } from './components/JobsPanel';
 import { EducationPanel } from './components/EducationPanel';
@@ -157,22 +157,22 @@ export default function BrasimsApp() {
         </div>
       </div>
 
-      {/* MODAIS */}
-      <Modal
+      {/* PAINÉIS ADAPTATIVOS (Sidepanel no Desktop / Modal no Mobile) */}
+      <AdaptivePanel
         isOpen={isEducationOpen}
         onClose={() => setIsEducationOpen(false)}
         title="📚 Educação"
       >
         <EducationPanel state={state} dispatch={dispatch} />
-      </Modal>
+      </AdaptivePanel>
 
-      <Modal
+      <AdaptivePanel
         isOpen={isJobsOpen}
         onClose={() => setIsJobsOpen(false)}
         title="💼 Mercado de Trabalho"
       >
         <JobsPanel state={state} dispatch={dispatch} />
-      </Modal>
+      </AdaptivePanel>
     </main>
   );
 }

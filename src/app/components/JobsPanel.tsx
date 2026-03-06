@@ -43,10 +43,19 @@ export function JobsPanel({ state, dispatch }: JobsPanelProps) {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-sm text-gray-300 mb-4">
-                <p>💰 Salário: <span className="text-green-400 font-bold">+R$ {job.salaryPerTick}/s</span></p>
-                <p>⚡ Custo: <span className="text-red-400 font-bold">-{job.energyCostPerTick}/s</span></p>
-                <p className="col-span-2">🎯 Entrevista: <span className="text-yellow-400 font-bold">R$ {job.upfrontCost}</span></p>
+              <div className="flex flex-col gap-2 text-sm text-gray-300 mb-4">
+                <p className="flex justify-between items-center">
+                  <span>💰 Salário:</span>
+                  <span className="text-green-400 font-bold whitespace-nowrap ml-2">+R$ {job.salaryPerTick}/s</span>
+                </p>
+                <p className="flex justify-between items-center">
+                  <span>⚡ Custo:</span>
+                  <span className="text-red-400 font-bold whitespace-nowrap ml-2">-{job.energyCostPerTick}/s</span>
+                </p>
+                <p className="flex justify-between items-center">
+                  <span>🎯 Entrevista:</span>
+                  <span className="text-yellow-400 font-bold whitespace-nowrap ml-2">R$ {job.upfrontCost}</span>
+                </p>
               </div>
 
               {job.requiredCourses.length > 0 && (
