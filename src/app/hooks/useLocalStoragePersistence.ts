@@ -1,13 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { PlayerState } from '../../core/types';
 import {
-  ENERGY_REGEN_PER_TICK,
   JOBS,
   MAX_ENERGY,
   OFFLINE_PROGRESS_MULTIPLIER,
   TICK_RATE_MS,
 } from '../../core/constants';
-import { getTotalCostOfLivingPerTick } from '../../core/state/lifeUpgrades';
+import { getTotalCostOfLivingPerTick, getTotalEnergyRegenPerTick } from '../../core/state/lifeUpgrades';
 
 const STORAGE_KEY = 'brasims_game_state';
 const AUTOSAVE_INTERVAL_MS = 15000; // Salva a cada 15 segundos
@@ -67,7 +66,7 @@ function applyOfflineProgress(state: PlayerState, savedAt: number): LoadGameStat
 
   const job = state.currentJobId ? JOBS[state.currentJobId] : null;
   const moneyDeltaPerTick = (job?.salaryPerTick ?? 0) - getTotalCostOfLivingPerTick(state);
-  const energyDeltaPerTick = ENERGY_REGEN_PER_TICK - (job?.energyCostPerTick ?? 0);
+  const energyDeltaPerTick = getTotalEnergyRegenPerTick(state) - (job?.energyCostPerTick ?? 0);
 
   const nextState: PlayerState = {
     ...state,

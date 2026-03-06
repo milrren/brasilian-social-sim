@@ -54,6 +54,12 @@ export function LifeUpgradesPanel({ state, dispatch }: LifeUpgradesPanelProps) {
                   <span>📉 Custo de vida:</span>
                   <span className="text-red-400 font-bold whitespace-nowrap ml-2">+R$ {upgrade.additionalCostOfLivingPerTick}/s</span>
                 </p>
+                {(upgrade.energyRegenBonusPerTick || 0) > 0 && (
+                  <p className="flex justify-between items-center">
+                    <span>⚡ Recuperação:</span>
+                    <span className="text-blue-300 font-bold whitespace-nowrap ml-2">+{upgrade.energyRegenBonusPerTick}/s</span>
+                  </p>
+                )}
                 {upgrade.backgroundAsset && (
                   <p className="text-xs text-blue-300">🖼️ Define novo visual de cenário</p>
                 )}

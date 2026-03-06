@@ -1,6 +1,6 @@
-import { ENERGY_REGEN_PER_TICK, JOBS } from '../constants';
+import { JOBS } from '../constants';
 import { PlayerState } from '../types';
-import { getTotalCostOfLivingPerTick } from './lifeUpgrades';
+import { getEnergyRegenBonusFromUpgrades, getTotalCostOfLivingPerTick, getTotalEnergyRegenPerTick } from './lifeUpgrades';
 
 export const getIncomePerTick = (state: PlayerState) => {
   const job = state.currentJobId ? JOBS[state.currentJobId] : null;
@@ -21,10 +21,12 @@ export const getEnergyBalancePerTick = (state: PlayerState) => {
 export const getEnergyBreakdownPerTick = (state: PlayerState) => {
   const job = state.currentJobId ? JOBS[state.currentJobId] : null;
   const energyDrain = job ? job.energyCostPerTick : 0;
-  const regen = ENERGY_REGEN_PER_TICK;
+  const regen = getTotalEnergyRegenPerTick(state);
+  const regenBonusFromUpgrades = getEnergyRegenBonusFromUpgrades(state);
 
   return {
     regen,
+    regenBonusFromUpgrades,
     drain: energyDrain,
     net: regen - energyDrain,
   };

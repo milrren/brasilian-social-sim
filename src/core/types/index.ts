@@ -20,6 +20,7 @@ export interface LifeUpgrade {
   category: 'housing' | 'wellness' | 'mobility';
   upfrontCost: number;
   additionalCostOfLivingPerTick: number;
+  energyRegenBonusPerTick?: number;
   backgroundAsset?: string;
 }
 

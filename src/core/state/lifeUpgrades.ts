@@ -1,4 +1,4 @@
-import { LIFE_UPGRADES, BASE_COST_OF_LIVING_PER_TICK } from '../constants';
+import { LIFE_UPGRADES, BASE_COST_OF_LIVING_PER_TICK, ENERGY_REGEN_PER_TICK } from '../constants';
 import { PlayerState } from '../types';
 
 export const getActiveLifeUpgrades = (state: PlayerState) => state.activeLifeUpgrades || [];
@@ -29,6 +29,18 @@ export const getCostOfLivingBreakdown = (state: PlayerState) => {
     upgradesCost,
     total: BASE_COST_OF_LIVING_PER_TICK + upgradesCost,
   };
+};
+
+export const getEnergyRegenBonusFromUpgrades = (state: PlayerState) => {
+  return getActiveLifeUpgrades(state).reduce((total, upgradeId) => {
+    const upgrade = LIFE_UPGRADES[upgradeId];
+    if (!upgrade) return total;
+    return total + (upgrade.energyRegenBonusPerTick || 0);
+  }, 0);
+};
+
+export const getTotalEnergyRegenPerTick = (state: PlayerState) => {
+  return ENERGY_REGEN_PER_TICK + getEnergyRegenBonusFromUpgrades(state);
 };
 
 export const getActiveBackgroundAsset = (state: PlayerState) => {

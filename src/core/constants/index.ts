@@ -103,6 +103,7 @@ export const LIFE_UPGRADES: Record<string, LifeUpgrade> = {
     category: 'wellness',
     upfrontCost: 220,
     additionalCostOfLivingPerTick: 1,
+    energyRegenBonusPerTick: 2,
   },
   'carro-popular': {
     id: 'carro-popular',
