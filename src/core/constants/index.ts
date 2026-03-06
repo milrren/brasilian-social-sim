@@ -22,6 +22,18 @@ export const COURSES: Record<string, Course> = {
     name: 'Informática Básica (SENAI)',
     cost: 100,
     energyCost: 80, // Exige que o jogador esteja quase com energia cheia para estudar
+  },
+  'excel-produtivo': {
+    id: 'excel-produtivo',
+    name: 'Excel Produtivo (SENAC)',
+    cost: 260,
+    energyCost: 65,
+  },
+  'logica-programacao': {
+    id: 'logica-programacao',
+    name: 'Lógica de Programação (EAD)',
+    cost: 520,
+    energyCost: 95,
   }
 };
 
@@ -42,6 +54,22 @@ export const JOBS: Record<string, Job> = {
     energyCostPerTick: 2,
     upfrontCost: 300,
     requiredCourses: ['info-basica'], // A Barreira da V2
+  },
+  'op-sistemas': {
+    id: 'op-sistemas',
+    name: 'Operador de Sistemas',
+    salaryPerTick: 12,
+    energyCostPerTick: 4,
+    upfrontCost: 650,
+    requiredCourses: ['info-basica', 'excel-produtivo'],
+  },
+  'analista-jr': {
+    id: 'analista-jr',
+    name: 'Analista Júnior',
+    salaryPerTick: 18,
+    energyCostPerTick: 6,
+    upfrontCost: 1400,
+    requiredCourses: ['info-basica', 'excel-produtivo', 'logica-programacao'],
   }
 };
 
