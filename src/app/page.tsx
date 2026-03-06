@@ -9,6 +9,7 @@ import { StatusPanel } from './components/StatusPanel';
 import { JobsPanel } from './components/JobsPanel';
 import { EducationPanel } from './components/EducationPanel';
 import { LifeUpgradesPanel } from './components/LifeUpgradesPanel';
+import { GeneralInfoPanel } from './components/GeneralInfoPanel';
 import {
   hasAvailableCourses,
   hasAvailableJobs,
@@ -20,6 +21,7 @@ import {
 import { AutosaveIndicator } from './components/AutosaveIndicator';
 import { OfflineProgressNotice } from './components/OfflineProgressNotice';
 import { getActiveBackgroundAsset, getTotalCostOfLivingPerTick } from '../core/state/lifeUpgrades';
+import { getNetProgressPerTick } from '../core/state/economy';
 
 export default function BrasimsApp() {
   const { state, dispatch, offlineProgressSummary, dismissOfflineProgressSummary } = useGameLoop();
@@ -30,6 +32,7 @@ export default function BrasimsApp() {
   const canDoBico = state.energy >= BICO_ENERGY_COST;
   const currentIncome = currentJob ? currentJob.salaryPerTick : 0;
   const totalCostOfLiving = getTotalCostOfLivingPerTick(state);
+  const netProgressPerTick = getNetProgressPerTick(state);
 
   // Indicadores de oportunidades
   const hasEducationAvailable = hasAvailableCourses(state);
@@ -43,6 +46,7 @@ export default function BrasimsApp() {
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const [isJobsOpen, setIsJobsOpen] = useState(false);
   const [isLifeUpgradesOpen, setIsLifeUpgradesOpen] = useState(false);
+  const [isGeneralInfoOpen, setIsGeneralInfoOpen] = useState(false);
 
   const [isFlashing, setIsFlashing] = useState(false);
 
@@ -89,7 +93,9 @@ export default function BrasimsApp() {
         <header className="pointer-events-auto bg-gray-900/90 backdrop-blur-sm border-4 border-gray-700 p-4 rounded-md shadow-lg flex flex-wrap gap-4 justify-between items-center text-white w-full">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-yellow-400 drop-shadow-md">Brasims</h1>
-            <p className="text-xs text-red-400 mt-1">Custo: -R$ {totalCostOfLiving}/seg</p>
+            <p className={`text-xs mt-1 ${netProgressPerTick >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              Progresso: {netProgressPerTick >= 0 ? '+' : ''}R$ {netProgressPerTick.toFixed(2)}/seg
+            </p>
           </div>
           
           <div className="flex gap-4 sm:gap-8 text-lg sm:text-xl font-bold">
@@ -138,6 +144,13 @@ export default function BrasimsApp() {
                   {availableLifeUpgradesCount}
                 </span>
               )}
+            </button>
+            <button
+              onClick={() => setIsGeneralInfoOpen(true)}
+              className="pointer-events-auto relative p-2 sm:p-3 bg-gray-600 hover:bg-gray-500 border-2 border-gray-400 rounded-lg transition-all active:translate-y-1 flex items-center justify-center text-2xl sm:text-3xl shadow-lg"
+              title="Informações Gerais"
+            >
+              📊
             </button>
           </div>
         </header>
@@ -205,6 +218,14 @@ export default function BrasimsApp() {
         title="🏡 Melhoria de Vida"
       >
         <LifeUpgradesPanel state={state} dispatch={dispatch} />
+      </AdaptivePanel>
+
+      <AdaptivePanel
+        isOpen={isGeneralInfoOpen}
+        onClose={() => setIsGeneralInfoOpen(false)}
+        title="📊 Informações Gerais"
+      >
+        <GeneralInfoPanel state={state} />
       </AdaptivePanel>
 
       {/* Indicador de Autosave */}

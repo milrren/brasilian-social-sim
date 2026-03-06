@@ -13,6 +13,24 @@ export const getTotalCostOfLivingPerTick = (state: PlayerState) => {
   return BASE_COST_OF_LIVING_PER_TICK + upgradesCost;
 };
 
+export const getCostOfLivingBreakdown = (state: PlayerState) => {
+  const activeUpgradeIds = getActiveLifeUpgrades(state);
+  const upgrades = activeUpgradeIds
+    .map((upgradeId) => LIFE_UPGRADES[upgradeId])
+    .filter((upgrade) => Boolean(upgrade));
+
+  const upgradesCost = upgrades.reduce((total, upgrade) => {
+    return total + upgrade.additionalCostOfLivingPerTick;
+  }, 0);
+
+  return {
+    base: BASE_COST_OF_LIVING_PER_TICK,
+    upgrades,
+    upgradesCost,
+    total: BASE_COST_OF_LIVING_PER_TICK + upgradesCost,
+  };
+};
+
 export const getActiveBackgroundAsset = (state: PlayerState) => {
   const activeWithAssets = getActiveLifeUpgrades(state)
     .map((upgradeId) => LIFE_UPGRADES[upgradeId])
