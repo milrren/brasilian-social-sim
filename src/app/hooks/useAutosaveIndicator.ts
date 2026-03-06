@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { AUTOSAVE_EVENT } from './useLocalStoragePersistence';
+import { AUTOSAVE_EVENT } from '../../core/persistence/useLocalStoragePersistence';
 
 /**
  * Hook que monitora eventos de autosave e retorna se foi salvo recentemente

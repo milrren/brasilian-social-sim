@@ -1,17 +1,16 @@
 import { useEffect, useRef } from 'react';
-import { PlayerState } from '../../core/types';
+import { PlayerState } from '../types';
 import {
   JOBS,
   MAX_ENERGY,
   OFFLINE_PROGRESS_MULTIPLIER,
   TICK_RATE_MS,
-} from '../../core/constants';
-import { getTotalCostOfLivingPerTick, getTotalEnergyRegenPerTick } from '../../core/state/lifeUpgrades';
+} from '../constants';
+import { getTotalCostOfLivingPerTick, getTotalEnergyRegenPerTick } from '../state/lifeUpgrades';
 
 const STORAGE_KEY = 'brasims_game_state';
-const AUTOSAVE_INTERVAL_MS = 15000; // Salva a cada 15 segundos
+const AUTOSAVE_INTERVAL_MS = 15000;
 
-// Event customizado para notificar autosave
 export const AUTOSAVE_EVENT = 'brasims:autosave';
 
 export interface OfflineProgressSummary {
@@ -32,9 +31,6 @@ interface PersistedGameState {
   state: PlayerState;
 }
 
-/**
- * Verifica se estamos no browser
- */
 function isBrowser(): boolean {
   return typeof window !== 'undefined';
 }
@@ -104,7 +100,6 @@ function loadPersistedGameState(): PersistedGameState | null {
       return parsed as PersistedGameState;
     }
 
-    // Compatibilidade com saves antigos (apenas PlayerState)
     if (isValidPlayerState(parsed)) {
       return {
         version: 1,
@@ -159,10 +154,6 @@ function saveGameState(state: PlayerState) {
   }
 }
 
-/**
- * Hook para persistência automática do estado no localStorage
- * Salva o estado a cada intervalo definido
- */
 export function useLocalStoragePersistence(state: PlayerState) {
   const latestStateRef = useRef(state);
 
@@ -173,7 +164,6 @@ export function useLocalStoragePersistence(state: PlayerState) {
   useEffect(() => {
     if (!isBrowser()) return;
 
-    // Intervalo estável: não reinicia a cada tick
     const saveInterval = setInterval(() => {
       saveGameState(latestStateRef.current);
     }, AUTOSAVE_INTERVAL_MS);
@@ -191,28 +181,19 @@ export function useLocalStoragePersistence(state: PlayerState) {
   }, []);
 }
 
-/**
- * Carrega o estado salvo do localStorage
- * Retorna null se não houver save anterior
- */
 export function loadGameState(): LoadGameStateResult | null {
   const persisted = loadPersistedGameState();
   if (!persisted) return null;
 
   const restoredResult = applyOfflineProgress(persisted.state, persisted.savedAt);
-  console.log('[Load] Estado restaurado com progresso offline:', restoredResult.state);
   return restoredResult;
 }
 
-/**
- * Limpa o estado salvo (útil para reset do jogo)
- */
 export function clearSavedGameState(): void {
   if (!isBrowser()) return;
 
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('[Clear] Estado salvo removido');
   } catch (error) {
     console.error('[Clear] Erro ao remover estado:', error);
   }

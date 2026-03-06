@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { OfflineProgressSummary } from '../hooks/useLocalStoragePersistence';
+import { OfflineProgressSummary } from '../../core/persistence/useLocalStoragePersistence';
 
 interface OfflineProgressNoticeProps {
   summary: OfflineProgressSummary | null;

@@ -10,18 +10,15 @@ import { JobsPanel } from './components/JobsPanel';
 import { EducationPanel } from './components/EducationPanel';
 import { LifeUpgradesPanel } from './components/LifeUpgradesPanel';
 import { GeneralInfoPanel } from './components/GeneralInfoPanel';
-import {
-  hasAvailableCourses,
-  hasAvailableJobs,
-  countAvailableCourses,
-  countAvailableJobs,
-  hasAvailableLifeUpgrades,
-  countAvailableLifeUpgrades,
-} from './utils/gameHelpers';
 import { AutosaveIndicator } from './components/AutosaveIndicator';
 import { OfflineProgressNotice } from './components/OfflineProgressNotice';
 import { getActiveBackgroundAsset, getTotalCostOfLivingPerTick } from '../core/state/lifeUpgrades';
 import { getNetProgressPerTick } from '../core/state/economy';
+import {
+  getCourseAvailability,
+  getJobAvailability,
+  getLifeUpgradeAvailability,
+} from '../core/selectors/availability';
 
 export default function BrasimsApp() {
   const { state, dispatch, offlineProgressSummary, dismissOfflineProgressSummary } = useGameLoop();
@@ -35,12 +32,9 @@ export default function BrasimsApp() {
   const netProgressPerTick = getNetProgressPerTick(state);
 
   // Indicadores de oportunidades
-  const hasEducationAvailable = hasAvailableCourses(state);
-  const hasJobsAvailable = hasAvailableJobs(state);
-  const hasLifeUpgradesAvailable = hasAvailableLifeUpgrades(state);
-  const availableCoursesCount = countAvailableCourses(state);
-  const availableJobsCount = countAvailableJobs(state);
-  const availableLifeUpgradesCount = countAvailableLifeUpgrades(state);
+  const courseAvailability = getCourseAvailability(state);
+  const jobAvailability = getJobAvailability(state);
+  const lifeUpgradeAvailability = getLifeUpgradeAvailability(state);
 
   // Estado dos modais
   const [isEducationOpen, setIsEducationOpen] = useState(false);
@@ -115,9 +109,9 @@ export default function BrasimsApp() {
               title="Educação"
             >
               📚
-              {hasEducationAvailable && (
+              {courseAvailability.hasAny && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg">
-                  {availableCoursesCount}
+                  {courseAvailability.count}
                 </span>
               )}
             </button>
@@ -127,9 +121,9 @@ export default function BrasimsApp() {
               title="Empregos"
             >
               💼
-              {hasJobsAvailable && (
+              {jobAvailability.hasAny && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg">
-                  {availableJobsCount}
+                  {jobAvailability.count}
                 </span>
               )}
             </button>
@@ -139,9 +133,9 @@ export default function BrasimsApp() {
               title="Melhoria de Vida"
             >
               🏡
-              {hasLifeUpgradesAvailable && (
+              {lifeUpgradeAvailability.hasAny && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-red-600 shadow-lg">
-                  {availableLifeUpgradesCount}
+                  {lifeUpgradeAvailability.count}
                 </span>
               )}
             </button>

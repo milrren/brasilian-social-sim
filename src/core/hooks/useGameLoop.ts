@@ -6,7 +6,7 @@ import {
   loadGameState,
   OfflineProgressSummary,
   useLocalStoragePersistence,
-} from '../../app/hooks/useLocalStoragePersistence';
+} from '../persistence/useLocalStoragePersistence';
 
 const defaultState: PlayerState = {
   money: 0,
