@@ -1,11 +1,37 @@
 import { useEffect, useRef } from 'react';
 import { PlayerState } from '../../core/types';
+import {
+  COST_OF_LIVING_PER_TICK,
+  ENERGY_REGEN_PER_TICK,
+  JOBS,
+  MAX_ENERGY,
+  OFFLINE_PROGRESS_MULTIPLIER,
+  TICK_RATE_MS,
+} from '../../core/constants';
 
 const STORAGE_KEY = 'brasims_game_state';
 const AUTOSAVE_INTERVAL_MS = 15000; // Salva a cada 15 segundos
 
 // Event customizado para notificar autosave
 export const AUTOSAVE_EVENT = 'brasims:autosave';
+
+export interface OfflineProgressSummary {
+  elapsedSeconds: number;
+  effectiveTicks: number;
+  moneyDelta: number;
+  energyDelta: number;
+}
+
+export interface LoadGameStateResult {
+  state: PlayerState;
+  offlineSummary: OfflineProgressSummary | null;
+}
+
+interface PersistedGameState {
+  version: 1;
+  savedAt: number;
+  state: PlayerState;
+}
 
 /**
  * Verifica se estamos no browser
@@ -14,11 +40,95 @@ function isBrowser(): boolean {
   return typeof window !== 'undefined';
 }
 
+function isValidPlayerState(value: unknown): value is PlayerState {
+  if (!value || typeof value !== 'object') return false;
+
+  const candidate = value as PlayerState;
+  return (
+    typeof candidate.money === 'number' &&
+    typeof candidate.energy === 'number' &&
+    (typeof candidate.currentJobId === 'string' || candidate.currentJobId === null) &&
+    Array.isArray(candidate.completedCourses)
+  );
+}
+
+function applyOfflineProgress(state: PlayerState, savedAt: number): LoadGameStateResult {
+  const elapsedMs = Date.now() - savedAt;
+  if (elapsedMs <= 0) {
+    return { state, offlineSummary: null };
+  }
+
+  const elapsedTicks = Math.floor(elapsedMs / TICK_RATE_MS);
+  const effectiveTicks = Math.floor(elapsedTicks * OFFLINE_PROGRESS_MULTIPLIER);
+  if (effectiveTicks <= 0) {
+    return { state, offlineSummary: null };
+  }
+
+  const job = state.currentJobId ? JOBS[state.currentJobId] : null;
+  const moneyDeltaPerTick = (job?.salaryPerTick ?? 0) - COST_OF_LIVING_PER_TICK;
+  const energyDeltaPerTick = ENERGY_REGEN_PER_TICK - (job?.energyCostPerTick ?? 0);
+
+  const nextState: PlayerState = {
+    ...state,
+    money: Math.max(0, state.money + moneyDeltaPerTick * effectiveTicks),
+    energy: Math.max(0, Math.min(MAX_ENERGY, state.energy + energyDeltaPerTick * effectiveTicks)),
+  };
+
+  return {
+    state: nextState,
+    offlineSummary: {
+      elapsedSeconds: Math.floor(elapsedMs / 1000),
+      effectiveTicks,
+      moneyDelta: nextState.money - state.money,
+      energyDelta: nextState.energy - state.energy,
+    },
+  };
+}
+
+function loadPersistedGameState(): PersistedGameState | null {
+  if (!isBrowser()) return null;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as unknown;
+
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      (parsed as PersistedGameState).version === 1 &&
+      typeof (parsed as PersistedGameState).savedAt === 'number' &&
+      isValidPlayerState((parsed as PersistedGameState).state)
+    ) {
+      return parsed as PersistedGameState;
+    }
+
+    // Compatibilidade com saves antigos (apenas PlayerState)
+    if (isValidPlayerState(parsed)) {
+      return {
+        version: 1,
+        savedAt: Date.now(),
+        state: parsed,
+      };
+    }
+  } catch (error) {
+    console.error('[Load] Erro ao carregar estado:', error);
+  }
+
+  return null;
+}
+
 function saveGameState(state: PlayerState) {
   if (!isBrowser()) return;
 
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const payload: PersistedGameState = {
+      version: 1,
+      savedAt: Date.now(),
+      state,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     window.dispatchEvent(new CustomEvent(AUTOSAVE_EVENT));
   } catch (error) {
     console.error('[Autosave] Erro ao salvar estado:', error);
@@ -61,20 +171,13 @@ export function useLocalStoragePersistence(state: PlayerState) {
  * Carrega o estado salvo do localStorage
  * Retorna null se não houver save anterior
  */
-export function loadGameState(): PlayerState | null {
-  if (!isBrowser()) return null;
+export function loadGameState(): LoadGameStateResult | null {
+  const persisted = loadPersistedGameState();
+  if (!persisted) return null;
 
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      console.log('[Load] Estado restaurado do localStorage:', parsed);
-      return parsed as PlayerState;
-    }
-  } catch (error) {
-    console.error('[Load] Erro ao carregar estado:', error);
-  }
-  return null;
+  const restoredResult = applyOfflineProgress(persisted.state, persisted.savedAt);
+  console.log('[Load] Estado restaurado com progresso offline:', restoredResult.state);
+  return restoredResult;
 }
 
 /**

@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { PlayerState } from '../types';
 import { processTick } from '../state/tick';
 import { TICK_RATE_MS } from '../constants';
-import { loadGameState, useLocalStoragePersistence } from '../../app/hooks/useLocalStoragePersistence';
+import {
+  loadGameState,
+  OfflineProgressSummary,
+  useLocalStoragePersistence,
+} from '../../app/hooks/useLocalStoragePersistence';
 
 const defaultState: PlayerState = {
   money: 0,
@@ -13,11 +17,13 @@ const defaultState: PlayerState = {
 
 export const useGameLoop = () => {
   const [state, setState] = useState<PlayerState>(defaultState);
+  const [offlineProgressSummary, setOfflineProgressSummary] = useState<OfflineProgressSummary | null>(null);
 
   useEffect(() => {
-    const savedState = loadGameState();
-    if (savedState) {
-      setState(savedState);
+    const savedResult = loadGameState();
+    if (savedResult) {
+      setState(savedResult.state);
+      setOfflineProgressSummary(savedResult.offlineSummary);
     }
   }, []);
 
@@ -40,5 +46,9 @@ export const useGameLoop = () => {
     setState((prevState) => actionFn(prevState));
   }, []);
 
-  return { state, dispatch };
+  const dismissOfflineProgressSummary = useCallback(() => {
+    setOfflineProgressSummary(null);
+  }, []);
+
+  return { state, dispatch, offlineProgressSummary, dismissOfflineProgressSummary };
 };

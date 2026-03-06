@@ -10,9 +10,10 @@ import { JobsPanel } from './components/JobsPanel';
 import { EducationPanel } from './components/EducationPanel';
 import { hasAvailableCourses, hasAvailableJobs, countAvailableCourses, countAvailableJobs } from './utils/gameHelpers';
 import { AutosaveIndicator } from './components/AutosaveIndicator';
+import { OfflineProgressNotice } from './components/OfflineProgressNotice';
 
 export default function BrasimsApp() {
-  const { state, dispatch } = useGameLoop();
+  const { state, dispatch, offlineProgressSummary, dismissOfflineProgressSummary } = useGameLoop();
 
   // Derivando dados para a UI
   const isEmployed = state.currentJobId !== null;
@@ -177,6 +178,12 @@ export default function BrasimsApp() {
 
       {/* Indicador de Autosave */}
       <AutosaveIndicator />
+
+      {/* Aviso de progresso offline */}
+      <OfflineProgressNotice
+        summary={offlineProgressSummary}
+        onClose={dismissOfflineProgressSummary}
+      />
     </main>
   );
 }

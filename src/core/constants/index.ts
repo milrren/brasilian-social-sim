@@ -3,6 +3,9 @@ import { Job, Course } from '../types';
 // A velocidade que o tempo passa e a vida cobra (1 segundo)
 export const TICK_RATE_MS = 1000;
 
+// Progresso offline: aplica apenas uma fração do que ocorreria online
+export const OFFLINE_PROGRESS_MULTIPLIER = 0.2;
+
 // Limites do corpo humano no corre
 export const MAX_ENERGY = 100;
 export const ENERGY_REGEN_PER_TICK = 5; // Recuperação passiva de energia
