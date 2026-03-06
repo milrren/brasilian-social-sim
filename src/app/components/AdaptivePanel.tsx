@@ -31,7 +31,7 @@ export function AdaptivePanel({ isOpen, onClose, title, children }: AdaptivePane
         }`}
       >
         {/* Header com X */}
-        <div className="sticky top-0 bg-gray-800/95 border-b-2 border-gray-700 p-4 flex justify-between items-center">
+        <div className="sticky top-0 z-20 bg-gray-800/95 border-b-2 border-gray-700 p-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-yellow-400">{title}</h2>
           <button
             onClick={onClose}

@@ -21,7 +21,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       {/* Content */}
       <div className="relative z-10 bg-gray-900/95 border-4 border-gray-700 rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gray-800/95 border-b-2 border-gray-700 p-4 flex justify-between items-center">
+        <div className="sticky top-0 z-20 bg-gray-800/95 border-b-2 border-gray-700 p-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-yellow-400">{title}</h2>
           <button
             onClick={onClose}
