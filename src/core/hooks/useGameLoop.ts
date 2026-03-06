@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { PlayerState } from '../types';
 import { processTick } from '../state/tick';
 import { TICK_RATE_MS } from '../constants';
+import { loadGameState, useLocalStoragePersistence } from '../../app/hooks/useLocalStoragePersistence';
 
-const initialState: PlayerState = {
+const defaultState: PlayerState = {
   money: 0,
   energy: 100,
   currentJobId: null, // Começa desempregado
@@ -11,7 +12,17 @@ const initialState: PlayerState = {
 };
 
 export const useGameLoop = () => {
-  const [state, setState] = useState<PlayerState>(initialState);
+  const [state, setState] = useState<PlayerState>(defaultState);
+
+  useEffect(() => {
+    const savedState = loadGameState();
+    if (savedState) {
+      setState(savedState);
+    }
+  }, []);
+
+  // Persistência automática do estado
+  useLocalStoragePersistence(state);
 
   // O Relógio da Vida
   useEffect(() => {

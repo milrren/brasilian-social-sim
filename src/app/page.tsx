@@ -9,6 +9,7 @@ import { StatusPanel } from './components/StatusPanel';
 import { JobsPanel } from './components/JobsPanel';
 import { EducationPanel } from './components/EducationPanel';
 import { hasAvailableCourses, hasAvailableJobs, countAvailableCourses, countAvailableJobs } from './utils/gameHelpers';
+import { AutosaveIndicator } from './components/AutosaveIndicator';
 
 export default function BrasimsApp() {
   const { state, dispatch } = useGameLoop();
@@ -173,6 +174,9 @@ export default function BrasimsApp() {
       >
         <JobsPanel state={state} dispatch={dispatch} />
       </AdaptivePanel>
+
+      {/* Indicador de Autosave */}
+      <AutosaveIndicator />
     </main>
   );
 }
